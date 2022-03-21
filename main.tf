@@ -186,23 +186,51 @@ resource "aws_db_instance" "default" {
   publicly_accessible  = true
 }
 
-resource "aws_secretsmanager_secret" "rds_credentials" {
-  name = "dentist_credentials"
+resource "aws_secretsmanager_secret" "db_creds" {
+  name = "db_creds"
 }
 
-resource "aws_secretsmanager_secret_version" "rds_credentials" {
-  secret_id     = aws_secretsmanager_secret.rds_credentials.id
+resource "aws_secretsmanager_secret_version" "db_creds" {
+  secret_id     = aws_secretsmanager_secret.db_creds.id
   secret_string = <<EOF
 {
   "username": "${aws_db_instance.default.username}",
   "password": "${random_password.master_password.result}",
   "engine": "mysql",
-  "host": "${aws_db_instance.default.endpoint}",
+  "host": "${aws_db_instance.default.address}",
   "port": ${aws_db_instance.default.port},
   "database": "${aws_db_instance.default.db_name}"
 }
 EOF
 }
 
+# add secrets manager policy to role so secrets can be obtained thru code
+resource "aws_iam_role_policy" "secret_manager_policy" {
+  name = "secret_manager_policy"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "secretsmanager:DescribeSecret",
+        "Resource": aws_secretsmanager_secret.db_creds.arn
+    }]
+  })
+}
+
+resource "aws_iam_role_policy" "secret_manager_policy_2" {
+  name = "secret_manager_policy_2"
+  role = aws_iam_role.lambda_exec.id
+
+  policy = jsonencode({
+    "Version": "2012-10-17",
+    "Statement": [{
+        "Effect": "Allow",
+        "Action": "secretsmanager:GetSecretValue",
+        "Resource": aws_secretsmanager_secret.db_creds.arn
+    }]
+  })
+}
 
 
