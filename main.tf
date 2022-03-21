@@ -3,8 +3,6 @@ provider "aws" {
 }
 
 locals {
-  # Relative paths change if this configuration is
-  # included as a module from Terragrunt.
   lambda_src_path = "${path.module}/lambda_function"
 }
 
@@ -29,10 +27,11 @@ resource "null_resource" "install_dependencies" {
   }
   # re-run this if the dependencies or their versions have changed
   triggers = {
-    dependencies_versions = filemd5("${path.module}/lambda_function/requirements.txt")
+    dependencies_versions = filemd5("${local.lambda_src_path}/requirements.txt")
   }
 }
 
+# bucket to host lambda function code
 resource "random_pet" "lambda_bucket_name" {
   prefix = "l"
   length = 1
@@ -43,8 +42,7 @@ resource "aws_s3_bucket" "lambda_bucket" {
   force_destroy = true
 }
 
-# Create an archive form the Lambda source code,
-# filtering out unneeded files.
+# create an archive form the Lambda source code
 data "archive_file" "lambda_source_package" {
   type        = "zip"
   source_dir  = local.lambda_src_path
@@ -55,11 +53,7 @@ data "archive_file" "lambda_source_package" {
     "core/__pycache__",
     "tests"
   ]
-
-  # This is necessary, since archive_file is now a
-  # `data` source and not a `resource` anymore.
-  # Use `depends_on` to wait for the "install dependencies"
-  # task to be completed.
+  # make sure dependencies are installed before creating archive
   depends_on = [null_resource.install_dependencies]
 }
 
@@ -72,27 +66,22 @@ resource "aws_s3_object" "lambda_dentist_app" {
 
 resource "aws_lambda_function" "dentist_app" {
   function_name = var.function_name
-
   s3_bucket = aws_s3_bucket.lambda_bucket.id
   s3_key    = aws_s3_object.lambda_dentist_app.key
-
   runtime = "python3.8"
   handler = "handler.lambda_handler"
-
   source_code_hash = data.archive_file.lambda_source_package.output_base64sha256
-
   role = aws_iam_role.lambda_exec.arn
 }
 
+# enable cloudwatch logs lambda function
 resource "aws_cloudwatch_log_group" "dentist-app" {
   name = "/aws/lambda/${aws_lambda_function.dentist_app.function_name}"
-
   retention_in_days = 30
 }
 
 resource "aws_iam_role" "lambda_exec" {
   name = "serverless_lambda"
-
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
@@ -150,16 +139,24 @@ resource "aws_apigatewayv2_integration" "dentist_app" {
   integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_route" "dentist_app" {
+# gateway routes
+resource "aws_apigatewayv2_route" "get_appointment" {
   api_id = aws_apigatewayv2_api.lambda.id
 
-  route_key = "GET /data"
+  route_key = "GET /appointment"
   target    = "integrations/${aws_apigatewayv2_integration.dentist_app.id}"
 }
 
+resource "aws_apigatewayv2_route" "set_appointment" {
+  api_id = aws_apigatewayv2_api.lambda.id
+
+  route_key = "POST /appointment"
+  target    = "integrations/${aws_apigatewayv2_integration.dentist_app.id}"
+}
+
+# gateway logs
 resource "aws_cloudwatch_log_group" "api_gw" {
   name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
-
   retention_in_days = 30
 }
 
@@ -168,7 +165,6 @@ resource "aws_lambda_permission" "api_gw" {
   action        = "lambda:InvokeFunction"
   function_name = aws_lambda_function.dentist_app.function_name
   principal     = "apigateway.amazonaws.com"
-
   source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
 
