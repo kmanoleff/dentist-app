@@ -14,20 +14,20 @@ Lambda function code written in [Python](https://www.python.org/downloads/).
 function code
 - Defines an IAM policy that allows the Lambda function to query Secrets Manager for the credentials
 
-**Lambda Function** `lambda.tf`
+**Lambda Function** [`lambda.tf`](https://github.com/kmanoleff/dentist-app/blob/main/lambda.tf)
 - `pip` installs the necessary dependencies to be packaged within the Lambda function
 - Bundles the dependencies and function code within a `.zip` file
 - Creates an S3 bucket to store the archive (`.zip`) file and uploads
 - Creates the Lambda execution IAM role
 - Enables CloudWatch logging from the Lambda function code
 
-**API Gateway** `gateway.tf`
+**API Gateway** [`gateway.tf`](https://github.com/kmanoleff/dentist-app/blob/main/gateway.tf)
 - Creates an API gateway for the Lambda function
 - Creates permissions for the Lambda function code to be executed by API gateway
 - Defines the API gateway routes and method endpoints
 - Enables CloudWatch logging from the gateway
 
-**Auth** `cognito.tf`
+**Auth** [`cognito.tf`](https://github.com/kmanoleff/dentist-app/blob/main/cognito.tf)
 - Creates a Cognito user pool
 - Defines the Auth flows
 - Attaches the Cognito authorizer to the API gateway using JWT
@@ -48,6 +48,8 @@ function code
 - `patient_id` - FK to `user` table of the `PATIENT` requesting the appointment
 - `doctor_id` - FK to `user` table of the `DOCTOR` performing the checkup
 - `receptionist_id` - FK to `user` table of the `RECEPTIONIST` who scheduled the appointment
+
+<img src="/demo_files/db.PNG" width="350" height="400">
 
 # Function Code
 Python lambda function code contained within `/lambda_function` directory
@@ -76,15 +78,8 @@ on the problem.
 This project has been deployed with terraform to my personal AWS account.  So some quick examples of the API in action, for example 
 
 ## No Auth
-![no auth](/demo_files/noauth.png)
+<img src="/demo_files/noauth.png" width="550" height="400">
+
 
 ## Getting Appointments
-![success](/demo_files/success.png)
-
-## Database Schema
-![db](/demo_files/db.PNG)
-
-
-
-
-
+<img src="/demo_files/success.png" width="550" height="400">
