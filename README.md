@@ -48,3 +48,26 @@ function code
 - `patient_id` - FK to `user` table of the `PATIENT` requesting the appointment
 - `doctor_id` - FK to `user` table of the `DOCTOR` performing the checkup
 - `receptionist_id` - FK to `user` table of the `RECEPTIONIST` who scheduled the appointment
+
+# Function Code
+Python lambda function code contained within `/lambda_function` directory
+
+`handler.py` 
+Entry point for the API.  Uses [Lambda Powertools Python](https://awslabs.github.io/aws-lambda-powertools-python/latest/)
+to assist in digesting the Lambda event information such as the user (from the Cognito auth) and the http method.
+
+Currently two simple endpoints exist `GET /appointment` and `POST /appointment`.  Based on the http method used in the 
+request it will route to gather the appropriate data.
+
+`dao.db_connect.py`
+A common database connection module which defines the credentials (from Secrets Manager) and some common database
+functions.  
+
+`dao.dentist_repo.py`
+Contains the SQL implementations for the database queries need to support the app.  For example, when retrieving appointments
+it would get the `user.user_id` and the `user_type.description` linked to the Cognito user.  Then it would query the `appointment`
+table for that user based on the proper FK (reference Database Structure section).
+
+`utils.custom_excptions.py`
+Custom exceptions that can be defined by developers to catch possible errors and give end users more detailed info
+on the problem.
