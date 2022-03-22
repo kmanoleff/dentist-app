@@ -1,0 +1,105 @@
+{
+	"info": {
+		"_postman_id": "012974ab-1d94-4398-a0cc-80fca9dee715",
+		"name": "Test Copy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Appointment",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {token}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://cvu3kztfm4.execute-api.us-east-1.amazonaws.com/serverless_lambda_stage/appointment",
+					"protocol": "https",
+					"host": [
+						"cvu3kztfm4",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"serverless_lambda_stage",
+						"appointment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Appointment",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer {token}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://cvu3kztfm4.execute-api.us-east-1.amazonaws.com/serverless_lambda_stage/appointment",
+					"protocol": "https",
+					"host": [
+						"cvu3kztfm4",
+						"execute-api",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					],
+					"path": [
+						"serverless_lambda_stage",
+						"appointment"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Auth",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "X-Amz-Target",
+						"value": "AWSCognitoIdentityProviderService.InitiateAuth",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "application/x-amz-json-1.1",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n   \"AuthParameters\" : {\r\n      \"USERNAME\" : \"xxx\",\r\n      \"PASSWORD\" : \"yyy\"\r\n   },\r\n   \"AuthFlow\" : \"USER_PASSWORD_AUTH\",\r\n   \"ClientId\" : \"zzz\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://cognito-idp.us-east-1.amazonaws.com",
+					"protocol": "https",
+					"host": [
+						"cognito-idp",
+						"us-east-1",
+						"amazonaws",
+						"com"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
