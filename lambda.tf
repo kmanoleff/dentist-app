@@ -53,6 +53,26 @@ data "archive_file" "lambda_source_package" {
   depends_on = [null_resource.install_dependencies]
 }
 
+# lambda execution role
+resource "aws_iam_role" "lambda_exec" {
+  name = "serverless_lambda"
+  assume_role_policy = jsonencode({
+    Version     = "2012-10-17"
+    Statement   = [{
+      Action    = "sts:AssumeRole"
+      Effect    = "Allow"
+      Sid       = ""
+      Principal = {
+        Service = "lambda.amazonaws.com"
+      }
+    }]
+  })
+}
+resource "aws_iam_role_policy_attachment" "lambda_policy" {
+  role       = aws_iam_role.lambda_exec.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
 # create the s3 object with function code zip
 resource "aws_s3_object" "lambda_dentist_app" {
   depends_on = [null_resource.install_dependencies]

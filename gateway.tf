@@ -32,16 +32,13 @@ resource "aws_apigatewayv2_integration" "dentist_app" {
   integration_method = "POST"
 }
 
-resource "aws_apigatewayv2_authorizer" "auth" {
-  api_id           = aws_apigatewayv2_api.lambda.id
-  authorizer_type  = "JWT"
-  identity_sources = ["$request.header.Authorization"]
-  name             = "cognito-authorizer"
-
-  jwt_configuration {
-    audience = [aws_cognito_user_pool_client.client.id]
-    issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
-  }
+# permission for execution from api gateway
+resource "aws_lambda_permission" "api_gw" {
+  statement_id  = "AllowExecutionFromAPIGateway"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.dentist_app.function_name
+  principal     = "apigateway.amazonaws.com"
+  source_arn = "${aws_apigatewayv2_api.lambda.execution_arn}/*/*"
 }
 
 # gateway routes

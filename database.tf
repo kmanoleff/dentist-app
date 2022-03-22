@@ -33,3 +33,16 @@ resource "aws_secretsmanager_secret_version" "db_creds" {
   "database": aws_db_instance.default.db_name
   })
 }
+
+# policy for retrieving database credentials from secrets manager
+data "aws_iam_policy_document" "lambda_policies" {
+  statement {
+    actions   = ["secretsmanager:DescribeSecret", "secretsmanager:GetSecretValue"]
+    resources = [aws_secretsmanager_secret.db_creds.arn]
+    effect    = "Allow"
+  }
+}
+resource "aws_iam_role_policy" "iam_policies" {
+  policy = data.aws_iam_policy_document.lambda_policies.json
+  role   = aws_iam_role.lambda_exec.id
+}
