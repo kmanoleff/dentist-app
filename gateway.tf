@@ -26,27 +26,43 @@ resource "aws_apigatewayv2_stage" "lambda" {
   }
 }
 resource "aws_apigatewayv2_integration" "dentist_app" {
-  api_id = aws_apigatewayv2_api.lambda.id
+  api_id             = aws_apigatewayv2_api.lambda.id
   integration_uri    = aws_lambda_function.dentist_app.invoke_arn
   integration_type   = "AWS_PROXY"
   integration_method = "POST"
 }
 
+resource "aws_apigatewayv2_authorizer" "auth" {
+  api_id           = aws_apigatewayv2_api.lambda.id
+  authorizer_type  = "JWT"
+  identity_sources = ["$request.header.Authorization"]
+  name             = "cognito-authorizer"
+
+  jwt_configuration {
+    audience = [aws_cognito_user_pool_client.client.id]
+    issuer   = "https://${aws_cognito_user_pool.pool.endpoint}"
+  }
+}
+
 # gateway routes
 resource "aws_apigatewayv2_route" "get_appointment" {
-  api_id = aws_apigatewayv2_api.lambda.id
-  route_key = "GET /appointment"
-  target    = "integrations/${aws_apigatewayv2_integration.dentist_app.id}"
+  api_id             = aws_apigatewayv2_api.lambda.id
+  route_key          = "GET /appointment"
+  target             = "integrations/${aws_apigatewayv2_integration.dentist_app.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.auth.id
 }
 
 resource "aws_apigatewayv2_route" "set_appointment" {
-  api_id = aws_apigatewayv2_api.lambda.id
+  api_id    = aws_apigatewayv2_api.lambda.id
   route_key = "POST /appointment"
   target    = "integrations/${aws_apigatewayv2_integration.dentist_app.id}"
+  authorization_type = "JWT"
+  authorizer_id      = aws_apigatewayv2_authorizer.auth.id
 }
 
 # gateway logs
 resource "aws_cloudwatch_log_group" "api_gw" {
-  name = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
+  name              = "/aws/api_gw/${aws_apigatewayv2_api.lambda.name}"
   retention_in_days = 30
 }
