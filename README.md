@@ -8,7 +8,7 @@ as Code tool, which supports AWS resources as well as building and packaging req
 
 Lambda function code written in [Python](https://www.python.org/downloads/).
 
-**Database** [`database.tf`](https://www.python.org/downloads/)
+**Database** `database.tf`
 - Builds a MySQL RDS instance
 - Creates a Secrets Manager entry to obscure sensitive credentials as well as store them for use by the Lambda 
 function code
