@@ -1,2 +1,3 @@
 pymysql
 aws-secretsmanager-caching
+aws-lambda-powertools

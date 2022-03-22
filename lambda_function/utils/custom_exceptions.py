@@ -14,6 +14,7 @@ class CustomError(Exception):
                 'Access-Control-Allow-Methods': 'OPTIONS,GET,POST,PUT,DELETE',
                 'Access-Control-Allow-Headers': 'Content-Type',
                 'Access-Control-Allow-Origin': '*',
+                'Content-Type': 'application/json',
             },
             'body': json.dumps({
                 'statusCode': self.status_code,
@@ -26,3 +27,8 @@ class CustomError(Exception):
 class DBException(CustomError):
     def __init__(self, i):
         super().__init__(500, 'Internal exception %s' % i)
+
+
+class UserNotFound(CustomError):
+    def __init__(self):
+        super().__init__(404, 'User not found')
