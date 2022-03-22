@@ -32,4 +32,19 @@ function code
 - Defines the Auth flows
 - Attaches the Cognito authorizer to the API gateway using JWT
 
-### Function Code
+### Database Structure
+`user` table
+- `user_id` - PK
+- `username` - the logged-in user's username
+- `user_type` - FK to `user_type` table
+- `email` , `phone`
+
+`user_type` table
+- `user_type_id` - PK
+- `description` - can be of type `PATIENT` , `DOCTOR` , `RECEPTIONIST`
+
+`appointment` table
+- `appointment_id` - PK
+- `patient_id` - FK to `user` table of the `PATIENT` requesting the appointment
+- `doctor_id` - FK to `user` table of the `DOCTOR` performing the checkup
+- `receptionist_id` - FK to `user` table of the `RECEPTIONIST` who scheduled the appointment
