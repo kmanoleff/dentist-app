@@ -2,7 +2,7 @@
 
 AWS serverless microservice to set and review your next checkup.
 
-## Infrastructure
+# Infrastructure
 Application uses [Terraform](https://learn.hashicorp.com/tutorials/terraform/install-cli), an Infrastructure 
 as Code tool, which supports AWS resources as well as building and packaging required dependencies.  
 
@@ -32,7 +32,7 @@ function code
 - Defines the Auth flows
 - Attaches the Cognito authorizer to the API gateway using JWT
 
-### Database Structure
+# Database Structure
 `user` table
 - `user_id` - PK
 - `username` - the logged-in user's username
