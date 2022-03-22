@@ -71,3 +71,20 @@ table for that user based on the proper FK (reference Database Structure section
 `utils.custom_excptions.py`
 Custom exceptions that can be defined by developers to catch possible errors and give end users more detailed info
 on the problem.
+
+# Proof of Concept
+This project has been deployed with terraform to my personal AWS account.  So some quick examples of the API in action, for example 
+
+## No Auth
+![no auth](/demo_files/noauth.png)
+
+## Getting Appointments
+![success](/demo_files/success.png)
+
+## Database Schema
+![db](/demo_files/db.PNG)
+
+
+
+
+
