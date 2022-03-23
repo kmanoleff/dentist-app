@@ -32,3 +32,8 @@ class DBException(CustomError):
 class UserNotFound(CustomError):
     def __init__(self):
         super().__init__(404, 'User not found')
+
+
+class NotAllowed(CustomError):
+    def __init__(self):
+        super().__init__(403, 'Operation not allowed for user type')

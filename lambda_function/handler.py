@@ -13,6 +13,17 @@ from aws_lambda_powertools.utilities.data_classes import event_source, APIGatewa
 
 @event_source(data_class=APIGatewayProxyEvent)
 def lambda_handler(event: APIGatewayProxyEvent, context):
+    # build base json output
+    returnJson = {
+        'statusCode': None,
+        'headers': {
+            'Access-Control-Allow-Methods': 'OPTIONS,GET,POST',
+            'Access-Control-Allow-Headers': 'Content-Type',
+            'Access-Control-Allow-Origin': '*',
+            'Content-Type': 'application/json',
+        },
+        'body': ''
+    }
     try:
         logger.info(json.dumps(event.__dict__))
         # get the user making the api call
@@ -26,31 +37,25 @@ def lambda_handler(event: APIGatewayProxyEvent, context):
             with MySQLConnection() as sqlEngine:
                 dentist_repo = DentistRepo(sqlEngine)
                 result = dentist_repo.get_appointments(username)
-            return {
-                'statusCode': 200,
-                'headers': {
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json',
-                },
-                'body': json.dumps(result, default=str)
-            }
+                returnJson['statusCode'] = 200
+                returnJson['body'] = json.dumps(result, default=str)
+            return returnJson
         if event.http_method == 'POST':
-            return {
-                'statusCode': 201,
-                'headers': {
-                    'Access-Control-Allow-Methods': 'OPTIONS,POST',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Access-Control-Allow-Origin': '*',
-                    'Content-Type': 'application/json',
-                },
-                'body': json.dumps({'code': username})
-            }
+            logger.info('request to set appointment')
+            request_body = json.loads(event.body)
+            with MySQLConnection() as sqlEngine:
+                dentist_repo = DentistRepo(sqlEngine)
+                result = dentist_repo.set_appointment(username, request_body)
+                returnJson['statusCode'] = 201
+                returnJson['body'] = json.dumps({'appointment verification #': str(result)})
+            return returnJson
     except custom_exceptions.DBException as e:
         print(e.build_error())
         return e.build_error()
     except custom_exceptions.UserNotFound as e:
+        print(e.build_error())
+        return e.build_error()
+    except custom_exceptions.NotAllowed as e:
         print(e.build_error())
         return e.build_error()
 
