@@ -47,7 +47,7 @@ def lambda_handler(event: APIGatewayProxyEvent, context):
                 dentist_repo = DentistRepo(sqlEngine)
                 result = dentist_repo.set_appointment(username, request_body)
                 returnJson['statusCode'] = 201
-                returnJson['body'] = json.dumps({'appointment verification #': str(result)})
+                returnJson['body'] = json.dumps({'verificationNumber': str(result)})
             return returnJson
     except custom_exceptions.DBException as e:
         print(e.build_error())
