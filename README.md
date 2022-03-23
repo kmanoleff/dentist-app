@@ -8,26 +8,26 @@ as Code tool, which supports AWS resources as well as building and packaging req
 
 Lambda function code written in [Python](https://www.python.org/downloads/).
 
-**Database** `database.tf`
+**Database** [`database.tf`](https://github.com/kmanoleff/dentist-app/blob/main/database.tf)
 - Builds a MySQL RDS instance
 - Creates a Secrets Manager entry to obscure sensitive credentials as well as store them for use by the Lambda 
 function code
 - Defines an IAM policy that allows the Lambda function to query Secrets Manager for the credentials
 
-**Lambda Function** `lambda.tf`
+**Lambda Function** [`lambda.tf`](https://github.com/kmanoleff/dentist-app/blob/main/lambda.tf)
 - `pip` installs the necessary dependencies to be packaged within the Lambda function
 - Bundles the dependencies and function code within a `.zip` file
 - Creates an S3 bucket to store the archive (`.zip`) file and uploads
 - Creates the Lambda execution IAM role
 - Enables CloudWatch logging from the Lambda function code
 
-**API Gateway** `gateway.tf`
+**API Gateway** [`gateway.tf`](https://github.com/kmanoleff/dentist-app/blob/main/gateway.tf)
 - Creates an API gateway for the Lambda function
 - Creates permissions for the Lambda function code to be executed by API gateway
 - Defines the API gateway routes and method endpoints
 - Enables CloudWatch logging from the gateway
 
-**Auth** `cognito.tf`
+**Auth** [`cognito.tf`](https://github.com/kmanoleff/dentist-app/blob/main/cognito.tf)
 - Creates a Cognito user pool
 - Defines the Auth flows
 - Attaches the Cognito authorizer to the API gateway using JWT
@@ -48,6 +48,8 @@ function code
 - `patient_id` - FK to `user` table of the `PATIENT` requesting the appointment
 - `doctor_id` - FK to `user` table of the `DOCTOR` performing the checkup
 - `receptionist_id` - FK to `user` table of the `RECEPTIONIST` who scheduled the appointment
+
+<img src="/demo_files/db.PNG" width="350" height="400">
 
 # Function Code
 Python lambda function code contained within `/lambda_function` directory
@@ -71,3 +73,13 @@ table for that user based on the proper FK (reference Database Structure section
 `utils.custom_excptions.py`
 Custom exceptions that can be defined by developers to catch possible errors and give end users more detailed info
 on the problem.
+
+# Proof of Concept
+This project has been deployed with terraform to my personal AWS account.  So some quick examples of the API in action, for example 
+
+## No Auth
+<img src="/demo_files/noauth.png" width="550" height="400">
+
+
+## Getting Appointments
+<img src="/demo_files/success.png" width="550" height="400">
